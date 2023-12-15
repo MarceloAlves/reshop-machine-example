@@ -42,7 +42,7 @@ function App() {
   return (
     <Layout>
       <Center flexDirection="column" gap={10}>
-        <Checkbox value={allowForce} onChange={(e) => setAllowForce(e.target.checked)}>
+        <Checkbox value={allowForce.toString()} onChange={(e) => setAllowForce(e.target.checked)}>
           Allow force?
         </Checkbox>
         <Button onClick={modalControl.onOpen}>Open</Button>
