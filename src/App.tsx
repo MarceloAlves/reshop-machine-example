@@ -1,6 +1,7 @@
 import {
   Button,
   Center,
+  Checkbox,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -15,6 +16,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useMachine } from '@xstate/react'
 import { Layout } from './components/Layout'
 import { reshopMachine } from './machines/reshop.machine'
+import { useState } from 'react'
 
 type APIData = { network_id: string; order_id: string; order_number: string; skip_wms_cancel?: boolean }
 type APIReturn = APIData
@@ -34,26 +36,38 @@ const reshopMutation = () =>
   })
 
 function App() {
+  const [allowForce, setAllowForce] = useState(false)
   const modalControl = useDisclosure()
 
   return (
     <Layout>
-      <Center>
+      <Center flexDirection="column" gap={10}>
+        <Checkbox value={allowForce} onChange={(e) => setAllowForce(e.target.checked)}>
+          Allow force?
+        </Checkbox>
         <Button onClick={modalControl.onOpen}>Open</Button>
-        {modalControl.isOpen && <ReshopModal {...modalControl} />}
+        {modalControl.isOpen && <ReshopModal {...modalControl} allowForce={allowForce} />}
       </Center>
     </Layout>
   )
 }
 
-function ReshopModal(modalControl: { isOpen: boolean; onOpen: () => void; onClose: () => void }) {
+function ReshopModal({
+  allowForce,
+  ...modalControl
+}: {
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
+  allowForce: boolean
+}) {
   const toast = useToast()
   const { mutateAsync } = reshopMutation()
 
   const [state, send] = useMachine(reshopMachine, {
     devTools: true,
     context: {
-      allow_force: true,
+      allow_force: allowForce,
     },
     actions: {
       failureToast: () => toast({ status: 'error', title: 'Error!', description: 'Something went wrong' }),
